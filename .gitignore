@@ -1,0 +1,6 @@
+/temp
+/shape_recog/Debug
+/shape_recog/Release
+/shape_recog/ipch
+/shape_recog/*.sdf
+

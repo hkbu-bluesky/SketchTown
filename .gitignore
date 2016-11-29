@@ -4,4 +4,6 @@
 /shape_recog/ipch
 /shape_recog/*.sdf
 
-
+/u3d/Library
+/u3d/ProjectSettings
+/u3d/Temp

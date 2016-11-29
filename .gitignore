@@ -3,6 +3,7 @@
 /shape_recog/Release
 /shape_recog/ipch
 /shape_recog/*.sdf
+/shape_recog/*.opensdf
 
 /u3d/Library
 /u3d/ProjectSettings

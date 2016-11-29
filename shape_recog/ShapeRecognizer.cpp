@@ -15,7 +15,7 @@ ShapeRecognizer::~ShapeRecognizer(void)
 
 void ShapeRecognizer::computeImageGradient(cv::Mat img, cv::Mat &gradImg)
 {
-	Canny(img,gradImg,25,50);
+	Canny(img,gradImg,50,80);
 	return;
 
 	Mat src;
@@ -82,6 +82,7 @@ void ShapeRecognizer::detectContours(cv::Mat img,std::vector<cv::Point> &contour
 	dilate(grad,grad,element);
 	erode(grad,grad,element);
 
+	imshow("grad",grad);
 
 
 	vector<vector<Point> > _contoursQuery;
@@ -99,8 +100,14 @@ void ShapeRecognizer::detectContours(cv::Mat img,std::vector<cv::Point> &contour
 		}
 	}
 
+
 	std::vector<Point> tempCS;
 	 approxPolyDP(Mat( _contoursQuery[maxCsIdx]), tempCS, arcLength(Mat(_contoursQuery[maxCsIdx]), true)*0.002, true);
+
+	 vector<vector<Point>>ccs;
+	 ccs.push_back(tempCS);
+	 drawContours(img,ccs,0,Scalar(0,0,255),2);
+	 imshow("img",img);
 
 	 int dummy=0;
 	 int n = 60;

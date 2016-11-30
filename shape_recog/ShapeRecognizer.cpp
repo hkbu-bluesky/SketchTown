@@ -37,9 +37,11 @@ int ShapeRecognizer::recogImageClass(cv::Mat img)
 
 	resize(img,img,Size(useWidth,useHeight));
 
-	vector<Point> cs;
-	detectContours(img,cs);
+	vector<Point> srcCs,shuffleCs;
+	detectContours(img,srcCs,shuffleCs);
 
+	Mat png;
+	extractIPImage(img,srcCs,png);
 
 
 	cv::Ptr <cv::ShapeContextDistanceExtractor> mysc = cv::createShapeContextDistanceExtractor();
@@ -50,7 +52,7 @@ int ShapeRecognizer::recogImageClass(cv::Mat img)
 	{
 		string strImgName = mShapeNames[i];
 		vector<Point> &dbShape = mShapeDb[strImgName];
-		float dis = mysc->computeDistance( cs, dbShape );
+		float dis = mysc->computeDistance( shuffleCs, dbShape );
 		if(dis<minMatchingDist)
 		{
 			minMatchingDist = dis;
@@ -64,12 +66,69 @@ int ShapeRecognizer::recogImageClass(cv::Mat img)
 	}
 	printf("-----------------------------press any key to continue\n");
 	imshow("img",img);
+
+	string strPng = mShapeNames[minMatchDsitIndex] + std::string(".png");
+	imwrite(strPng,png);
+	printf("save cropped png:%s\n",strPng.c_str());
 	waitKey(0);
 	
 	return 1;
 }
 
-void ShapeRecognizer::detectContours(cv::Mat img,std::vector<cv::Point> &contours )
+void ShapeRecognizer::extractIPImage(cv::Mat img,std::vector<cv::Point> &srcContours ,cv::Mat &png)
+{
+	//get bounding box
+	int leftx=10000,topy=10000,rightx=0,bottomy=0;
+	for(int i = 0; i < srcContours.size();i++)
+	{
+		cv::Point pt = srcContours[i];
+		if(pt.x < leftx)
+			leftx = pt.x;
+		if(pt.x > rightx)
+			rightx = pt.x;
+		
+		if(pt.y < topy)
+			topy = pt.y;
+		if(pt.y > bottomy)
+			bottomy = pt.y;
+	}
+
+	cv::Rect rct(leftx,topy,rightx-leftx+1,bottomy-topy+1);
+	Mat subImg = img(rct).clone();
+
+	std::vector<cv::Point> subContours;
+	for(int i = 0; i < srcContours.size(); i++)
+	{
+		cv::Point pt = srcContours[i];
+		pt.x -= rct.x;
+		pt.y -= rct.y;
+		subContours.push_back(pt);
+	}
+	Mat mask = Mat::zeros(Size(rct.width,rct.height),CV_8UC1);
+	std::vector<std::vector<cv::Point>> subCCs;
+	subCCs.push_back(subContours);
+	drawContours(mask,subCCs,0,Scalar(25,255,255),-1);
+
+	png = Mat::zeros(subImg.size(),CV_8UC4);
+	for(int r = 0; r < subImg.rows;r++)
+	{
+		uchar *ptrImgRow = subImg.ptr<uchar>(r);
+		uchar *ptrAlphaRow = mask.ptr<uchar>(r);
+		uchar *ptrPngRow = png.ptr<uchar>(r);
+		for(int c = 0; c < subImg.cols;c++)
+		{
+			ptrPngRow[4*c+0] = ptrImgRow[3*c+0];
+			ptrPngRow[4*c+1] = ptrImgRow[3*c+1];
+			ptrPngRow[4*c+2] = ptrImgRow[3*c+2];
+			ptrPngRow[4*c+3] = ptrAlphaRow[c]==0?0:255;
+		}
+	}
+	//imshow("png",png);
+	//imshow("mask",mask);
+
+
+}
+void ShapeRecognizer::detectContours(cv::Mat img,std::vector<cv::Point> &srcContours,std::vector<cv::Point> &shuffleContours )
 {
 	
 
@@ -103,6 +162,8 @@ void ShapeRecognizer::detectContours(cv::Mat img,std::vector<cv::Point> &contour
 
 	std::vector<Point> tempCS;
 	 approxPolyDP(Mat( _contoursQuery[maxCsIdx]), tempCS, arcLength(Mat(_contoursQuery[maxCsIdx]), true)*0.002, true);
+	 srcContours = tempCS;
+
 
 	 vector<vector<Point>>ccs;
 	 ccs.push_back(tempCS);
@@ -121,7 +182,7 @@ void ShapeRecognizer::detectContours(cv::Mat img,std::vector<cv::Point> &contour
 	 vector<Point> cont;
 	 for (int i=0; i<n; i++)
 	 {
-		 contours.push_back(tempCS[i]);
+		 shuffleContours.push_back(tempCS[i]);
 	 }
 	int debug = 0;
 }
@@ -145,8 +206,9 @@ void ShapeRecognizer::extractShapesFromDatabase(std::vector<std::string> &strImg
 		//extract image name from image path
 		string strImgName = strImg.substr(pos+1,strImg.length()-pos-1);
 
-		vector<cv::Point> &cs = mShapeDb[strImgName];
-		detectContours(img,cs);	
+		vector<cv::Point> &shuffleCs = mShapeDb[strImgName];
+		vector<Point> srcCs;
+		detectContours(img,srcCs,shuffleCs);
 		mShapeNames.push_back(strImgName);
 
 		printf("data base %s setup done\n",strImgName.c_str());

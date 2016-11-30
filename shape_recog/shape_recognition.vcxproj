@@ -83,6 +83,7 @@
     <ClInclude Include="utls\CustomStringHelper.h" />
     <ClInclude Include="utls\FileHelper.h" />
     <ClInclude Include="utls\stringEx.h" />
+    <ClInclude Include="utls\UDPConnection.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ShapeRecognizer.cpp" />
@@ -94,6 +95,7 @@
     <ClCompile Include="utls\CustomStringHelper.cpp" />
     <ClCompile Include="utls\FileHelper.cpp" />
     <ClCompile Include="utls\stringEx.cpp" />
+    <ClCompile Include="utls\UDPConnection.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -36,6 +36,9 @@
     <ClInclude Include="utls\stringEx.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="utls\UDPConnection.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -54,6 +57,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="utls\stringEx.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="utls\UDPConnection.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

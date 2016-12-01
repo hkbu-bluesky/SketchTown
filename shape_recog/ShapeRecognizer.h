@@ -3,6 +3,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include "UDPConnection.h"
 
 class ShapeRecognizer
 {
@@ -26,5 +27,6 @@ public:
 	std::map<std::string,std::vector<cv::Point>> mShapeDb;
 	std::vector<std::string> mShapeNames;
 	int mProcessImgWidth;
+	CUDPConnection mUDPSender;
 };
 

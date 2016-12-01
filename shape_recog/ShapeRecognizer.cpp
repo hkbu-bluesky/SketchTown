@@ -1,16 +1,20 @@
 #include "StdAfx.h"
 #include "ShapeRecognizer.h"
 #include <opencv2/shape.hpp>
+#include "FileHelper.h"
+
 using namespace cv;
 using namespace std;
 ShapeRecognizer::ShapeRecognizer(void)
 {
 	mProcessImgWidth = 320;
+	mUDPSender.InitConnection("127.0.0.1",8001);
 }
 
 
 ShapeRecognizer::~ShapeRecognizer(void)
 {
+	mUDPSender.CloseConnection();
 }
 
 void ShapeRecognizer::computeImageGradient(cv::Mat img, cv::Mat &gradImg)
@@ -67,9 +71,10 @@ int ShapeRecognizer::recogImageClass(cv::Mat img)
 	printf("-----------------------------press any key to continue\n");
 	imshow("img",img);
 
-	string strPng = mShapeNames[minMatchDsitIndex] + std::string(".png");
+	string strPng =FileHelper::GetRunningDirectory()+std::string("/")+ mShapeNames[minMatchDsitIndex] + std::string(".png");
 	imwrite(strPng,png);
 	printf("save cropped png:%s\n",strPng.c_str());
+	mUDPSender.Send(strPng);
 	waitKey(0);
 	
 	return 1;

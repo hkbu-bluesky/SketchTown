@@ -8,3 +8,5 @@
 /u3d/Library
 /u3d/ProjectSettings
 /u3d/Temp
+/u3d/Assets/scripts/*.meta
+/u3d/Assets/*.meta
